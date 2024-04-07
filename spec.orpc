@@ -1,0 +1,20 @@
+message Person {
+  name string
+  age int64
+}
+
+error message Error {
+  code int64
+  message string
+}
+
+enum ErrorCode {
+  NOT_FOUND = 1
+  INTERNAL_ERROR = 2
+}
+
+message PersonParams {
+  age int64
+}
+
+rpc sayHello(PersonParams) Person | Error
