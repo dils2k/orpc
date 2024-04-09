@@ -4,7 +4,7 @@ message Person {
 }
 
 error message Error {
-  code int64
+  code ErrorCode
   message string
 }
 

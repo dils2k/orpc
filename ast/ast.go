@@ -4,12 +4,12 @@ type Statement interface {
 	statement()
 }
 
-type MessageStatement struct {
+type Message struct {
 	Name   string
 	Fields []MessageField
 }
 
-func (MessageStatement) statement() {}
+func (Message) statement() {}
 
 type MessageField struct {
 	Name string
