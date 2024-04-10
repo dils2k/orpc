@@ -15,10 +15,10 @@ func NewLexer(input string) *Lexer {
 	return l
 }
 
-func (l *Lexer) NextToken() token.Token {
+func (l *Lexer) NextToken() *token.Token {
 	l.skipWhitespace()
 
-	var tok token.Token
+	tok := &token.Token{}
 	switch l.ch {
 	case '{':
 		tok = newToken(token.LBRACE, l.ch)
@@ -56,8 +56,8 @@ func (l *Lexer) skipWhitespace() {
 	}
 }
 
-func newToken(typ token.Type, lit byte) token.Token {
-	return token.Token{Type: typ, Literal: string(lit)}
+func newToken(typ token.Type, lit byte) *token.Token {
+	return &token.Token{Type: typ, Literal: string(lit)}
 }
 
 func (l *Lexer) readIdentifier() string {
