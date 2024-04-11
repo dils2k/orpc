@@ -6,6 +6,7 @@ import (
 	"github.com/dils2k/orpc/ast"
 	"github.com/dils2k/orpc/parser"
 	"github.com/dils2k/orpc/scan"
+	"github.com/dils2k/orpc/token"
 	"github.com/google/go-cmp/cmp"
 )
 
@@ -20,6 +21,26 @@ func TestParse(t *testing.T) {
 			`message Request123 {}`,
 			[]ast.Statement{
 				&ast.Message{Name: "Request123"},
+			},
+		},
+		{
+			"valid message with fields",
+			`
+			message Request {
+				a int32
+				b int64
+				c string
+			}
+			`,
+			[]ast.Statement{
+				&ast.Message{
+					Name: "Request",
+					Fields: []*ast.MessageField{
+						{Name: "a", Type: &token.Token{Type: token.IDENT, Literal: "int32"}},
+						{Name: "b", Type: &token.Token{Type: token.IDENT, Literal: "int64"}},
+						{Name: "c", Type: &token.Token{Type: token.IDENT, Literal: "string"}},
+					},
+				},
 			},
 		},
 		{

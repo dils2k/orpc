@@ -46,6 +46,27 @@ func TestNextToken(t *testing.T) {
 			},
 		},
 		{
+			"message declaration with fields",
+			`message Person {
+				a int32
+				b int64
+				c string
+			}`,
+			[]*token.Token{
+				{Type: token.MESSAGE, Literal: "message"},
+				{Type: token.IDENT, Literal: "Person"},
+				{Type: token.LBRACE, Literal: "{"},
+				{Type: token.IDENT, Literal: "a"},
+				{Type: token.IDENT, Literal: "int32"},
+				{Type: token.IDENT, Literal: "b"},
+				{Type: token.IDENT, Literal: "int64"},
+				{Type: token.IDENT, Literal: "c"},
+				{Type: token.IDENT, Literal: "string"},
+				{Type: token.RBRACE, Literal: "}"},
+				{Type: token.EOF, Literal: ""},
+			},
+		},
+		{
 			"invalid char",
 			"message % {}",
 			[]*token.Token{

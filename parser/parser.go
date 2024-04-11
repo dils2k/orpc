@@ -54,10 +54,31 @@ func (p *Parser) messageStatement() *ast.Message {
 	if !p.expectPeek(token.LBRACE) {
 		return nil
 	}
+
+	// while next token is identifier we try to register
+	// a message field.
+	for p.peekToken.Type == token.IDENT {
+		p.nextToken()
+		field := p.field()
+		if field != nil {
+			stmt.Fields = append(stmt.Fields, field)
+		}
+	}
+
 	if !p.expectPeek(token.RBRACE) {
 		return nil
 	}
+
 	return stmt
+}
+
+func (p *Parser) field() *ast.MessageField {
+	field := &ast.MessageField{Name: p.currToken.Literal}
+	if !p.expectPeek(token.IDENT) {
+		return nil
+	}
+	field.Type = p.currToken
+	return field
 }
 
 func (p *Parser) peekError(t token.Type) {
