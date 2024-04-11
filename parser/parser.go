@@ -10,7 +10,6 @@ import (
 
 type Parser struct {
 	lexer                *scan.Lexer
-	schema               []ast.Statement
 	currToken, peekToken *token.Token
 	errors               []string
 }
@@ -18,27 +17,31 @@ type Parser struct {
 func NewParser(lexer *scan.Lexer) *Parser {
 	p := &Parser{lexer: lexer}
 	p.nextToken()
+	p.nextToken()
 	return p
 }
 
+func (p *Parser) Errors() []string {
+	return p.errors
+}
+
 func (p *Parser) ParseSchema() []ast.Statement {
+	schema := make([]ast.Statement, 0)
 	for {
 		switch p.currToken.Type {
 		case token.MESSAGE:
-			p.messageStatement()
+			schema = append(schema, p.messageStatement())
 		}
-
 		p.nextToken()
 		if p.currToken.Type == token.EOF {
 			break
 		}
 	}
-
-	return nil
+	return schema
 }
 
 func (p *Parser) nextToken() {
-	p.currToken = p.lexer.NextToken()
+	p.currToken = p.peekToken
 	p.peekToken = p.lexer.NextToken()
 }
 
@@ -48,8 +51,12 @@ func (p *Parser) messageStatement() *ast.Message {
 		return nil
 	}
 	stmt.Name = p.currToken.Literal
-	p.expectPeek(token.LBRACE)
-	p.expectPeek(token.RBRACE)
+	if !p.expectPeek(token.LBRACE) {
+		return nil
+	}
+	if !p.expectPeek(token.RBRACE) {
+		return nil
+	}
 	return stmt
 }
 

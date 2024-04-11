@@ -5,18 +5,19 @@ import (
 
 	"github.com/dils2k/orpc/scan"
 	"github.com/dils2k/orpc/token"
+	"github.com/google/go-cmp/cmp"
 )
 
 func TestNextToken(t *testing.T) {
 	for _, tt := range []struct {
 		name     string
 		input    string
-		expected []token.Token
+		expected []*token.Token
 	}{
 		{
 			"lbrace rbrace",
 			"{}",
-			[]token.Token{
+			[]*token.Token{
 				{Type: token.LBRACE, Literal: "{"},
 				{Type: token.RBRACE, Literal: "}"},
 				{Type: token.EOF, Literal: ""},
@@ -25,7 +26,7 @@ func TestNextToken(t *testing.T) {
 		{
 			"message declaration",
 			"message Person {}",
-			[]token.Token{
+			[]*token.Token{
 				{Type: token.MESSAGE, Literal: "message"},
 				{Type: token.IDENT, Literal: "Person"},
 				{Type: token.LBRACE, Literal: "{"},
@@ -34,9 +35,20 @@ func TestNextToken(t *testing.T) {
 			},
 		},
 		{
+			"message declaration with number",
+			"message Person123 {}",
+			[]*token.Token{
+				{Type: token.MESSAGE, Literal: "message"},
+				{Type: token.IDENT, Literal: "Person123"},
+				{Type: token.LBRACE, Literal: "{"},
+				{Type: token.RBRACE, Literal: "}"},
+				{Type: token.EOF, Literal: ""},
+			},
+		},
+		{
 			"invalid char",
 			"message % {}",
-			[]token.Token{
+			[]*token.Token{
 				{Type: token.MESSAGE, Literal: "message"},
 				{Type: token.ILLEGAL, Literal: "%"},
 				{Type: token.LBRACE, Literal: "{"},
@@ -47,21 +59,18 @@ func TestNextToken(t *testing.T) {
 	} {
 		t.Run(tt.name, func(t *testing.T) {
 			l := scan.NewLexer(tt.input)
-			for i := 0; ; i++ {
+
+			toks := make([]*token.Token, 0)
+			for {
 				tok := l.NextToken()
-				exp := tt.expected[i]
-
-				if tok.Type != exp.Type {
-					t.Errorf("expected type %s got %s", exp.Type, tok.Type)
-				}
-
-				if tok.Type != exp.Type {
-					t.Errorf("expected literal %s got %s", exp.Literal, tok.Literal)
-				}
-
+				toks = append(toks, tok)
 				if tok.Type == token.EOF {
 					break
 				}
+			}
+
+			if diff := cmp.Diff(tt.expected, toks); diff != "" {
+				t.Fatalf("token mismatch (-want +got):\n%s", diff)
 			}
 		})
 	}
